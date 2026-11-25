@@ -24,15 +24,19 @@ export const CameraRig = ({ mode }: { mode: 'island' | 'interior' }) => {
   const snapped = useRef(false);
 
   useLayoutEffect(() => {
+    const perspective = camera as THREE.PerspectiveCamera;
     if (mode === 'interior') {
-      cameraState.distance = Math.min(4.4, cameraState.distance);
-      cameraState.pitch = clamp(cameraState.pitch, 0.08, 0.9);
+      cameraState.distance = Math.min(5.0, cameraState.distance);
+      cameraState.pitch = clamp(cameraState.pitch, 0.45, 0.95);
+      perspective.fov = 68;
     } else {
       cameraState.distance = ISLAND_DISTANCE;
       cameraState.pitch = ISLAND_PITCH;
+      perspective.fov = 55;
     }
+    perspective.updateProjectionMatrix();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode]);
+  }, [mode, camera]);
 
   useEffect(() => {
     const canvas = gl.domElement;
@@ -62,7 +66,7 @@ export const CameraRig = ({ mode }: { mode: 'island' | 'interior' }) => {
       cameraState.yaw -= dx * 0.0048 * sensitivity;
       cameraState.pitch = clamp(
         cameraState.pitch - dy * 0.0038 * sensitivity,
-        mode === 'interior' ? 0.04 : -0.08,
+        mode === 'interior' ? 0.38 : -0.08,
         1.18,
       );
     };
@@ -75,8 +79,8 @@ export const CameraRig = ({ mode }: { mode: 'island' | 'interior' }) => {
       const state = useGameStore.getState();
       if (state.phase !== 'playing' || state.modal) return;
       event.preventDefault();
-      const min = mode === 'interior' ? 2.6 : 5;
-      const max = mode === 'interior' ? 5.2 : 12.5;
+      const min = mode === 'interior' ? 3.6 : 5;
+      const max = mode === 'interior' ? 5.6 : 12.5;
       cameraState.distance = clamp(
         cameraState.distance + event.deltaY * 0.004,
         min,
@@ -122,20 +126,21 @@ export const CameraRig = ({ mode }: { mode: 'island' | 'interior' }) => {
       return;
     }
 
-    target.current.set(playerState.x, playerState.y + 1.35, playerState.z);
+    const targetHeight = mode === 'interior' ? 1.0 : 1.35;
+    target.current.set(playerState.x, playerState.y + targetHeight, playerState.z);
 
     if (cameraState.recenterRequested) {
       cameraState.recenterRequested = false;
       cameraState.yaw = playerState.yaw + Math.PI;
-      cameraState.pitch = mode === 'interior' ? 0.32 : ISLAND_PITCH;
-      cameraState.distance = mode === 'interior' ? 4.2 : ISLAND_DISTANCE;
+      cameraState.pitch = mode === 'interior' ? 0.74 : ISLAND_PITCH;
+      cameraState.distance = mode === 'interior' ? 4.9 : ISLAND_DISTANCE;
     }
 
-    const minDistance = mode === 'interior' ? 2.6 : 5;
-    const maxDistance = mode === 'interior' ? 5.2 : 12.5;
+    const minDistance = mode === 'interior' ? 3.6 : 5;
+    const maxDistance = mode === 'interior' ? 5.6 : 12.5;
     cameraState.distance = clamp(cameraState.distance, minDistance, maxDistance);
     if (mode === 'interior') {
-      cameraState.pitch = clamp(cameraState.pitch, 0.04, 1.0);
+      cameraState.pitch = clamp(cameraState.pitch, 0.4, 1.05);
     }
 
     const horizontal = Math.cos(cameraState.pitch) * cameraState.distance;
@@ -146,14 +151,22 @@ export const CameraRig = ({ mode }: { mode: 'island' | 'interior' }) => {
     );
 
     if (mode === 'island') {
-      // Pull the camera in if a building would sit between it and Aya.
+      // Pull the camera in if a building would sit between it and Hossna.
+      // Blockers the player is standing inside are ignored, otherwise the
+      // shrine (which the player can walk into) would pin the camera to them.
+      const activeBlockers = CAMERA_BLOCKERS.filter(
+        (blocker) =>
+          Math.abs(target.current.x - blocker.x) > blocker.halfX + 1.1 ||
+          Math.abs(target.current.z - blocker.z) > blocker.halfZ + 1.1 ||
+          target.current.y > blocker.base + blocker.height + 0.4,
+      );
       let allowed = 1;
-      for (let step = 1; step <= 7; step += 1) {
-        const t = step / 7;
+      for (let step = 2; step <= 8; step += 1) {
+        const t = step / 8;
         const px = target.current.x + (desired.current.x - target.current.x) * t;
         const py = target.current.y + (desired.current.y - target.current.y) * t;
         const pz = target.current.z + (desired.current.z - target.current.z) * t;
-        const blocked = CAMERA_BLOCKERS.some(
+        const blocked = activeBlockers.some(
           (blocker) =>
             px > blocker.x - blocker.halfX - 0.35 &&
             px < blocker.x + blocker.halfX + 0.35 &&
@@ -163,7 +176,7 @@ export const CameraRig = ({ mode }: { mode: 'island' | 'interior' }) => {
             py < blocker.base + blocker.height,
         );
         if (blocked) {
-          allowed = Math.max(0.25, (step - 1) / 7);
+          allowed = Math.max(0.3, (step - 1) / 8);
           break;
         }
       }
@@ -188,15 +201,15 @@ export const CameraRig = ({ mode }: { mode: 'island' | 'interior' }) => {
     } else {
       camera.position.x = clamp(
         camera.position.x,
-        -INTERIOR.bounds.halfX - 0.08,
-        INTERIOR.bounds.halfX + 0.08,
+        -INTERIOR.bounds.halfX - 0.15,
+        INTERIOR.bounds.halfX + 0.15,
       );
       camera.position.z = clamp(
         camera.position.z,
-        -INTERIOR.bounds.halfZ + 0.02,
-        INTERIOR.bounds.halfZ + 0.02,
+        -INTERIOR.bounds.halfZ - 0.15,
+        INTERIOR.bounds.halfZ + 0.15,
       );
-      camera.position.y = clamp(camera.position.y, 0.65, 3.05);
+      camera.position.y = clamp(camera.position.y, 0.9, 3.0);
     }
 
     camera.lookAt(lookAt.current);

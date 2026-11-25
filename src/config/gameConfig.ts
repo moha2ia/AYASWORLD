@@ -1,24 +1,33 @@
+export const PLAYER_NAME = 'Hossna';
+
 export const GAME_INFO = {
-  title: "AYA'S SECRET WORLD",
+  title: "HOSSNA'S SECRET WORLD",
+  shortTitle: "HOSSNA'S WORLD",
   subtitle: 'A little world made just for you.',
   welcomeMessage:
-    'Hey AYA! Welcome to your own little island. Follow the flowers, collect the golden stars, and peek behind the trees — I hid a few surprises just for you. 💗',
+    'Hey Hossna! Welcome to your own little island. Visit your cottage, find the old garden key, unlock the secret garden, and gather stars and crystals to wake the Star Shrine. I hid a few surprises just for you. 💗',
   secretNote:
-    "Hey AYA! I made this little world for you. Explore every corner, find all the hidden surprises, and remember that there's always a little magic waiting to be discovered. 💗",
-  signTitle: "Welcome to AYA's Secret World!",
+    "Hey Hossna! I made this little world for you. Explore every corner, find all the hidden surprises, and remember that there's always a little magic waiting to be discovered. 💗",
+  signTitle: "Welcome to Hossna's Secret World!",
   signSubtitle: 'Stars, secrets & soft island breezes',
   cottageWelcome:
-    'The cottage is warm, smells like cinnamon, and feels like it was built for quiet afternoons.',
-  mailboxMessage:
-    'A tiny letter inside: "If you found this, you are already good at noticing the little things. — with love"',
+    'The cottage is warm, smells like cinnamon, and feels like it was built for quiet afternoons. Something glints on the tea table…',
+  keyFound:
+    'You found the old garden key! It is warm, as if it has been waiting for you. The gate in the west will open now.',
+  gateLocked:
+    'The old gate is locked tight. There is a little keyhole shaped like a heart… maybe the key is somewhere cozy.',
+  fountainNeedsFlowers:
+    'The fountain hums softly. It wants two magical flowers — you are carrying {flowers}.',
+  fountainReward:
+    'You float the magical flowers on the water. The fountain sings and glows — the island trusts you now.',
   shrineLocked:
-    'The shrine is sleeping. Five golden stars will wake it — you have collected {stars} so far.',
+    'The shrine is sleeping. It needs {starGoal} golden stars and {crystalGoal} pink crystals — you have {stars} stars and {crystals} crystals.',
   shrineRewardTitle: 'The Star Shrine awakens!',
   shrineReward:
     'A warm light spills over the island. A little gift appears: a jar of stardust, and the knowledge that you are very loved.',
   finaleTitle: 'You found every little piece of magic.',
   finaleBody:
-    'The meadow, the cottage, the secret garden, the stars, the shrine — all of it was waiting for you. Thank you for exploring AYA. There is always more magic to discover.',
+    'The meadow, the cottage, the secret garden, the fountain, the stars, the crystals and the shrine — all of it was waiting for you. Thank you for exploring, Hossna. There is always more magic to discover.',
   resetWarning:
     'This clears stars, quests, secrets and outfits saved in this browser. It cannot be undone.',
   saveNote:
@@ -47,7 +56,7 @@ export const OUTFITS = [
   { id: "rainbow", name: "Rainy Day Rainbow", color: "#c43bff", trim: "#ffea8a", type: "dress" },
 
   // Over-sized coats / jackets
-  { id: "fairyBombshell", name: "Fairy Bombshell", color: "#456", trim: "#6ee7b7", type: "coat" },
+  { id: "fairyBombshell", name: "Fairy Bombshell", color: "#445566", trim: "#6ee7b7", type: "coat" },
   { id: "velvetBombshell", name: "Velvet Bombshell", color: "#6a4c93", trim: "#ff8fab", type: "coat" },
   { id: "sparkleBombshell", name: "Sparkle Bombshell", color: "#9b5de5", trim: "#f15bb5", type: "coat" },
 
@@ -74,7 +83,7 @@ export const OUTFITS = [
   // Summer collection
   { id: "summer1", name: "Tropical Print", color: "#ff6b6b", trim: "#ffd93e", type: "dress" },
   { id: "summer2", name: "Ocean Breeze", color: "#48d1cc", trim: "#6c5ce7", type: "dress" },
-  { id: "summer3", name: "Citrus Sun", color: "#ffa726", trim: "#white", type: "dress" },
+  { id: "summer3", name: "Citrus Sun", color: "#ffa726", trim: "#ffffff", type: "dress" },
 
   // Winter collection
   { id: "winter1", name: "Frost Kimono", color: "#a8d8ff", trim: "#7e5cef", type: "coat" },
@@ -83,7 +92,7 @@ export const OUTFITS = [
 
   // Festival / seasonal
   { id: "lunarNewYear", name: "Lunar New Year", color: "#ff6b6b", trim: "#ffd700", type: "dress" },
-  { id: "halloween", name: "Spooky Witch", color: "#6b35", trim: "#ffe5b4", type: "coat" },
+  { id: "halloween", name: "Spooky Witch", color: "#6b3a5e", trim: "#ffe5b4", type: "coat" },
   { id: "christmas", name: "Christmas Sweater", color: "#f5a9a9", trim: "#ffe5e5", type: "formal" },
 ] as const;
 
@@ -239,6 +248,53 @@ export const COLLECTIBLES: CollectibleDefinition[] = [
 ];
 
 export const STAR_GOAL = 5;
+export const CRYSTAL_GOAL = 3;
+export const FLOWER_GOAL = 2;
+
+export const SECRETS = [
+  {
+    id: 'mailbox',
+    name: 'The little letter',
+    hint: 'Someone left mail by the cottage path.',
+    message: 'A tiny letter inside: "If you found this, you are already good at noticing the little things. — with love"',
+  },
+  {
+    id: 'message',
+    name: 'The carved stone',
+    hint: 'A small stone sits by the path to the beach.',
+    message: 'Carved into the stone: "Your curiosity is what makes this island glow."',
+  },
+  {
+    id: 'willow',
+    name: 'The whispering willow',
+    hint: 'A tall willow leans toward the sea, west of the beach path.',
+    message: 'The willow whispers: "Secrets lie where the moonlight touches the water… look east of the pond."',
+  },
+  {
+    id: 'moonstone',
+    name: 'The moonstone',
+    hint: 'Something pale glows on the rocks east of the lily pond.',
+    message: 'The moonstone glows warmly under your hand. It remembers every wish ever made here.',
+  },
+  {
+    id: 'wish',
+    name: 'The wishing tree',
+    hint: 'The blossoming tree in the secret garden listens to wishes.',
+    message: 'You whisper a wish to the blossoms. A petal floats down and lands right on your nose. Wish granted. 🌸',
+  },
+  {
+    id: 'cat',
+    name: 'The sleepy cat',
+    hint: 'Someone is napping in a basket inside the cottage.',
+    message: 'The cat purrs, stretches one paw, and goes right back to sleep. You have been approved. 🐾',
+  },
+  {
+    id: 'fireplace',
+    name: 'The warm fireplace',
+    hint: 'The cottage fireplace is always crackling.',
+    message: 'You warm your hands by the fire. Somewhere a kettle starts to sing.',
+  },
+] as const;
 
 export const QUALITY_LABELS = {
   auto: "Auto (recommended)",

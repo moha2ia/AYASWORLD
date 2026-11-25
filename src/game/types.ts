@@ -4,7 +4,40 @@ export type QualitySetting = 'auto' | 'high' | 'low';
 export type Phase = 'title' | 'playing' | 'paused';
 export type SceneId = 'island' | 'interior';
 
-export type QuestId = 'meadow' | 'stars' | 'secret' | 'cottage' | 'shrine';
+export type QuestId =
+  | 'sign'
+  | 'meadow'
+  | 'cottage'
+  | 'key'
+  | 'secret'
+  | 'note'
+  | 'flowers'
+  | 'crystals'
+  | 'stars'
+  | 'shrine';
+
+export type SecretId =
+  | 'mailbox'
+  | 'message'
+  | 'willow'
+  | 'moonstone'
+  | 'wish'
+  | 'cat'
+  | 'fireplace';
+
+export type BadgeId =
+  | 'first-star'
+  | 'starlight'
+  | 'crystal-clear'
+  | 'green-thumb'
+  | 'key-keeper'
+  | 'hedge-walker'
+  | 'little-noticer'
+  | 'island-sleuth'
+  | 'home-sweet-home'
+  | 'shrine-awakener'
+  | 'pocketful'
+  | 'whole-world';
 
 export type ModalId =
   | 'howto'
@@ -28,6 +61,7 @@ export interface GameSettings {
   reducedMotion: boolean;
   quality: QualitySetting;
   sensitivity: number;
+  guide: boolean;
 }
 
 export interface Toast {
@@ -50,18 +84,19 @@ export interface ProgressData {
   collected: CollectedMap;
   quests: Record<QuestId, boolean>;
   visited: Record<string, boolean>;
+  secrets: Partial<Record<SecretId, true>>;
+  badges: Partial<Record<BadgeId, true>>;
   gateOpen: boolean;
   shrineUnlocked: boolean;
   character: CharacterLook;
   settings: GameSettings;
-  discovered: Record<string, boolean>;
+  playSeconds: number;
 }
 
-export interface QuestDefinition {
-  id: QuestId;
-  title: string;
-  hint: string;
-  icon: string;
+export interface QuestTarget {
+  x: number;
+  z: number;
+  scene: SceneId;
 }
 
 export interface InteractionDefinition {
@@ -74,14 +109,15 @@ export interface InteractionDefinition {
     | 'gate'
     | 'note'
     | 'shrine'
-    | 'mailbox'
-    | 'bench'
-    | 'dresser';
+    | 'dresser'
+    | 'key'
+    | 'fountain'
+    | 'secret';
   label: string;
   x: number;
   z: number;
   radius: number;
   scene: SceneId;
-  /** Optional collectible type when kind === 'collectible'. */
   collectibleType?: CollectibleType;
+  secretId?: SecretId;
 }

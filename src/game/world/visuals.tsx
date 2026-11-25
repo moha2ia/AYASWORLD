@@ -135,11 +135,11 @@ export const useSwayMaterial = (
   const material = useMemo(() => {
     const mat = new THREE.MeshLambertMaterial({
       color,
-      flatShading,
+      flatShading: flatShading ?? false,
       emissive: emissive ?? '#000000',
       emissiveIntensity: emissiveIntensity ?? 0,
-      transparent,
-      opacity,
+      transparent: transparent ?? false,
+      opacity: opacity ?? 1,
     });
     mat.onBeforeCompile = (shader) => {
       shader.uniforms.uTime = { value: 0 };
@@ -163,7 +163,7 @@ export const useSwayMaterial = (
         );
       mat.userData.shader = shader;
     };
-    mat.customProgramCacheKey = () => 'aya-sway-v2';
+    mat.customProgramCacheKey = () => 'hossna-sway-v2';
     return mat;
   }, [color, flatShading, emissive, emissiveIntensity, transparent, opacity, sway]);
 
@@ -267,7 +267,7 @@ export const makeNoteTexture = () => {
     context.fillStyle = '#b36b85';
     context.textAlign = 'center';
     context.font = 'italic 56px Georgia, serif';
-    context.fillText('A note for AYA', 256, 122);
+    context.fillText('A note for Hossna', 256, 122);
     context.fillStyle = '#9b7a68';
     context.font = '30px Georgia, serif';
     context.fillText('press E / tap to read', 256, 210);

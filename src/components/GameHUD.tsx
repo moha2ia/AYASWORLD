@@ -5,6 +5,7 @@ import { countCollected, starCount } from '../game/quests';
 import { useGameStore } from '../game/store';
 import { useMobileLayout } from '../ui/useMobileLayout';
 import {
+  BookIcon,
   CompassIcon,
   CrystalIcon,
   MuteIcon,
@@ -21,6 +22,7 @@ export const GameHUD = () => {
   const sound = useGameStore((state) => state.settings.sound);
   const toggleSound = useGameStore((state) => state.toggleSound);
   const pauseGame = useGameStore((state) => state.pauseGame);
+  const openModal = useGameStore((state) => state.openModal);
   const modal = useGameStore((state) => state.modal);
   const mobile = useMobileLayout();
   const [showHint, setShowHint] = useState(true);
@@ -37,10 +39,10 @@ export const GameHUD = () => {
   return (
     <div className="hud">
       <header className="hud-top">
-        <div className="brand-pill" aria-label="Aya's Secret World">
+        <div className="brand-pill" aria-label="Hossna's Secret World">
           <span className="brand-heart" aria-hidden="true">♥</span>
-          <span className="brand-full">AYA'S SECRET WORLD</span>
-          <span className="brand-short">AYA'S WORLD</span>
+          <span className="brand-full">HOSSNA'S SECRET WORLD</span>
+          <span className="brand-short">HOSSNA'S WORLD</span>
         </div>
 
         <div className="hud-actions">
@@ -62,6 +64,14 @@ export const GameHUD = () => {
             <CrystalIcon size={17} />
             <span>{crystals}</span>
           </div>
+          <button
+            className="icon-button"
+            onClick={() => openModal('journal')}
+            aria-label="Open journal"
+            title="Journal (J)"
+          >
+            <BookIcon size={19} />
+          </button>
           <button
             className="icon-button"
             onClick={toggleSound}
@@ -111,6 +121,8 @@ export const GameHUD = () => {
               <kbd>Space</kbd> jump
               <span>·</span>
               <kbd>E</kbd> interact
+              <span>·</span>
+              <kbd>J</kbd> journal
               <span>·</span>
               drag to look
             </>

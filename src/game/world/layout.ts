@@ -11,7 +11,28 @@ export const LAYOUT = {
   secretGarden: { x: -30, z: 20, gate: { x: -25.5, z: 15.1 } },
   secretNote: { x: -29.4, z: 18.3 },
   shrine: { x: 8, z: -26, interact: { x: 8, z: -21.8 } },
+  wishingTree: { x: -32.6, z: 22.6 },
+  messageStone: { x: -2.1, z: 26.5 },
+  willow: { x: -8.5, z: 28.5 },
+  moonstone: { x: 30.5, z: -12.3 },
 } as const;
+
+/** The hedge that encloses the secret garden; the gate sits on the ring. */
+const gateDx = LAYOUT.secretGarden.gate.x - LAYOUT.secretGarden.x;
+const gateDz = LAYOUT.secretGarden.gate.z - LAYOUT.secretGarden.z;
+export const HEDGE = {
+  x: LAYOUT.secretGarden.x,
+  z: LAYOUT.secretGarden.z,
+  radius: Math.hypot(gateDx, gateDz),
+  halfThickness: 0.45,
+  gateAngle: Math.atan2(gateDz, gateDx),
+  gateHalfWidth: 1.9,
+  openingHalfWidth: 1.55,
+} as const;
+
+/** Signed smallest difference between two angles, in radians. */
+export const angleDelta = (a: number, b: number) =>
+  Math.atan2(Math.sin(a - b), Math.cos(a - b));
 
 export type PathPoint = readonly [number, number];
 
@@ -457,9 +478,13 @@ export const OBSTACLE_CIRCLES: ObstacleCircle[] = [
   { x: -11.5, z: 41.2, r: 1.8 }, // beached rowboat
   { x: LAYOUT.meadowArch.x - 1.8, z: LAYOUT.meadowArch.z, r: 0.3 },
   { x: LAYOUT.meadowArch.x + 1.8, z: LAYOUT.meadowArch.z, r: 0.3 },
+  { x: LAYOUT.wishingTree.x, z: LAYOUT.wishingTree.z, r: 0.55 },
+  { x: LAYOUT.willow.x, z: LAYOUT.willow.z, r: 0.5 },
+  { x: LAYOUT.messageStone.x, z: LAYOUT.messageStone.z, r: 0.4 },
+  { x: LAYOUT.moonstone.x, z: LAYOUT.moonstone.z, r: 0.35 },
 ];
 
-/** Solid building / gate boxes. */
+/** Solid building boxes. */
 export const COTTAGE_BOX: ObstacleBox = {
   x: LAYOUT.cottage.x,
   z: LAYOUT.cottage.z,
@@ -467,18 +492,15 @@ export const COTTAGE_BOX: ObstacleBox = {
   halfZ: 3.4,
 };
 
-export const GATE_BOX: ObstacleBox = {
-  x: LAYOUT.secretGarden.gate.x,
-  z: LAYOUT.secretGarden.gate.z,
-  halfX: 0.35,
-  halfZ: 1.9,
-};
-
 export interface InteriorLayout {
   floorY: number;
   bounds: { halfX: number; halfZ: number };
   spawn: { x: number; z: number };
   exit: { x: number; z: number };
+  key: { x: number; z: number };
+  cat: { x: number; z: number };
+  fireplace: { x: number; z: number };
+  dresser: { x: number; z: number };
   boxes: ObstacleBox[];
 }
 
@@ -487,6 +509,10 @@ export const INTERIOR: InteriorLayout = {
   bounds: { halfX: 4.55, halfZ: 3.7 },
   spawn: { x: 0, z: 1.3 },
   exit: { x: 0, z: -3.1 },
+  key: { x: 2.05, z: 0.95 },
+  cat: { x: 1.2, z: 2.6 },
+  fireplace: { x: 2.5, z: -2.6 },
+  dresser: { x: -2.8, z: -2.2 },
   boxes: [
     { x: -3.5, z: -2.25, halfX: 1.15, halfZ: 1.5 }, // bed
     { x: 4.1, z: -2.1, halfX: 0.75, halfZ: 1.2 }, // fireplace
@@ -506,5 +532,14 @@ export const CAMERA_BLOCKERS = [
     halfZ: 2.6,
     height: 5.4,
     base: terrainHeight(LAYOUT.shrine.x, LAYOUT.shrine.z),
+  },
+  {
+    // Wishing tree canopy — the secret garden is small, so the camera often swings into it.
+    x: LAYOUT.wishingTree.x,
+    z: LAYOUT.wishingTree.z,
+    halfX: 2.6,
+    halfZ: 2.6,
+    height: 4.6,
+    base: terrainHeight(LAYOUT.wishingTree.x, LAYOUT.wishingTree.z) + 1.7,
   },
 ];

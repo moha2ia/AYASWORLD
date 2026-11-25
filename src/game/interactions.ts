@@ -1,23 +1,42 @@
 import {
   COLLECTIBLES,
-  GAME_INFO,
+  CRYSTAL_GOAL,
+  FLOWER_GOAL,
   STAR_GOAL,
 } from '../config/gameConfig';
-import { audio } from './audio';
 import { playerState } from './playerState';
-import { starCount } from './quests';
+import { countCollected, starCount } from './quests';
 import { useGameStore } from './store';
-import type { InteractionDefinition } from './types';
-import { LAYOUT } from './world/layout';const collectibleInteractions: InteractionDefinition[] = COLLECTIBLES.map((item) => ({
+import type { InteractionDefinition, SecretId } from './types';
+import { INTERIOR, LAYOUT } from './world/layout';
+
+const collectibleInteractions: InteractionDefinition[] = COLLECTIBLES.map((item) => ({
   id: item.id,
   kind: 'collectible',
-  label: `Collect ${item.name}`,
+  label: `Collect the ${item.name}`,
   x: item.x,
   z: item.z,
   radius: 2.6,
   scene: 'island',
   collectibleType: item.type,
 }));
+
+const secret = (
+  secretId: SecretId,
+  label: string,
+  spot: { x: number; z: number },
+  radius: number,
+  scene: InteractionDefinition['scene'] = 'island',
+): InteractionDefinition => ({
+  id: `secret-${secretId}`,
+  kind: 'secret',
+  secretId,
+  label,
+  x: spot.x,
+  z: spot.z,
+  radius,
+  scene,
+});
 
 export const INTERACTIONS: InteractionDefinition[] = [
   {
@@ -32,25 +51,16 @@ export const INTERACTIONS: InteractionDefinition[] = [
   {
     id: 'cottage-door',
     kind: 'door',
-    label: "Enter AYA's cottage",
+    label: "Enter Hossna's cottage",
     x: LAYOUT.cottage.x,
     z: LAYOUT.cottage.interactZ,
     radius: 3,
     scene: 'island',
   },
   {
-    id: 'cottage-mailbox',
-    kind: 'mailbox',
-    label: 'Peek in the mailbox',
-    x: LAYOUT.cottageMailbox.x,
-    z: LAYOUT.cottageMailbox.z,
-    radius: 2.3,
-    scene: 'island',
-  },
-  {
     id: 'secret-gate',
     kind: 'gate',
-    label: 'Open the old garden gate',
+    label: 'Unlock the old garden gate',
     x: LAYOUT.secretGarden.gate.x,
     z: LAYOUT.secretGarden.gate.z,
     radius: 3.1,
@@ -66,6 +76,15 @@ export const INTERACTIONS: InteractionDefinition[] = [
     scene: 'island',
   },
   {
+    id: 'garden-fountain',
+    kind: 'fountain',
+    label: 'Visit the fountain',
+    x: LAYOUT.flowerGarden.fountain.x,
+    z: LAYOUT.flowerGarden.fountain.z,
+    radius: 3.3,
+    scene: 'island',
+  },
+  {
     id: 'star-shrine',
     kind: 'shrine',
     label: 'Awaken the Star Shrine',
@@ -78,58 +97,36 @@ export const INTERACTIONS: InteractionDefinition[] = [
     id: 'cottage-exit',
     kind: 'exit',
     label: 'Step back outside',
-    x: 0,
-    z: -3.1,
-    radius: 2.3,
+    x: INTERIOR.exit.x,
+    z: INTERIOR.exit.z,
+    radius: 1.9,
     scene: 'interior',
   },
   {
-    id: 'cottage-fireplace',
-    kind: 'bench',
-    label: 'Warm your hands by the fire',
-    x: 2.5,
-    z: -2.6,
-    radius: 2,
+    id: 'garden-key',
+    kind: 'key',
+    label: 'Pick up the old garden key',
+    x: INTERIOR.key.x,
+    z: INTERIOR.key.z,
+    radius: 1.8,
     scene: 'interior',
   },
   {
     id: 'dresser',
     kind: 'dresser',
     label: 'Change outfit at the dresser',
-    x: -2.8,
-    z: -2.2,
+    x: INTERIOR.dresser.x,
+    z: INTERIOR.dresser.z,
     radius: 2,
     scene: 'interior',
   },
-  // Easter eggs
-  {
-    id: 'hidden-message',
-    kind: 'note',
-    label: 'Find the hidden message',
-    x: -2.1,
-    z: 26.5,
-    radius: 2,
-    scene: 'island',
-  },
-  {
-    id: 'moonstone',
-    kind: 'collectible',
-    label: 'Touch the moon stone',
-    x: 30.5,
-    z: -12.3,
-    radius: 2.5,
-    scene: 'island',
-    collectibleType: 'gift',
-  },
-  {
-    id: 'whispering-willow',
-    kind: 'sign',
-    label: 'Listen to the whispering willow',
-    x: -8.5,
-    z: 28.5,
-    radius: 3,
-    scene: 'island',
-  },
+  secret('mailbox', 'Peek in the mailbox', LAYOUT.cottageMailbox, 2.3),
+  secret('message', 'Read the carved stone', LAYOUT.messageStone, 2.1),
+  secret('willow', 'Listen to the whispering willow', LAYOUT.willow, 2.6),
+  secret('moonstone', 'Touch the moonstone', LAYOUT.moonstone, 2.4),
+  secret('wish', 'Make a wish at the wishing tree', LAYOUT.wishingTree, 2.2),
+  secret('cat', 'Pet the sleepy cat', INTERIOR.cat, 1.6, 'interior'),
+  secret('fireplace', 'Warm your hands by the fire', INTERIOR.fireplace, 1.8, 'interior'),
   ...collectibleInteractions,
 ];
 
@@ -142,10 +139,18 @@ export const isInteractionAvailable = (interaction: InteractionDefinition): bool
   const state = useGameStore.getState();
   if (state.phase !== 'playing') return false;
   if (state.scene !== interaction.scene) return false;
-  if (interaction.kind === 'collectible') return !state.collected[interaction.id];
-  if (interaction.kind === 'gate') return !state.gateOpen;
-  if (interaction.kind === 'dresser') return true;
-  return true;
+  switch (interaction.kind) {
+    case 'collectible':
+      return !state.collected[interaction.id];
+    case 'gate':
+      return !state.gateOpen;
+    case 'note':
+      return state.gateOpen;
+    case 'key':
+      return !state.quests.key;
+    default:
+      return true;
+  }
 };
 
 export const getInteractionLabel = (interaction: InteractionDefinition): string => {
@@ -153,9 +158,20 @@ export const getInteractionLabel = (interaction: InteractionDefinition): string 
   if (interaction.kind === 'shrine') {
     if (state.shrineUnlocked) return 'Visit the glowing Star Shrine';
     const stars = starCount(state.collected);
-    return stars >= STAR_GOAL
+    const crystals = countCollected(state.collected, 'crystal');
+    return stars >= STAR_GOAL && crystals >= CRYSTAL_GOAL
       ? 'Awaken the Star Shrine'
-      : `Star Shrine — ${stars} / ${STAR_GOAL} stars`;
+      : `Star Shrine — ${stars}/${STAR_GOAL} stars · ${crystals}/${CRYSTAL_GOAL} crystals`;
+  }
+  if (interaction.kind === 'gate') {
+    return state.quests.key ? 'Unlock the gate with the old key' : 'Try the old garden gate';
+  }
+  if (interaction.kind === 'fountain') {
+    if (state.quests.flowers) return 'Make a wish at the fountain';
+    const flowers = countCollected(state.collected, 'flower');
+    return flowers >= FLOWER_GOAL
+      ? 'Offer the magical flowers'
+      : `Fountain — ${flowers}/${FLOWER_GOAL} magical flowers`;
   }
   return interaction.label;
 };
@@ -166,12 +182,11 @@ export const findNearestInteraction = (): InteractionDefinition | null => {
   let best = Infinity;
   for (const interaction of INTERACTIONS) {
     if (!isInteractionAvailable(interaction)) continue;
-    const distance = Math.hypot(
-      playerState.x - interaction.x,
-      playerState.z - interaction.z,
-    );
-    if (distance <= interaction.radius && distance < best) {
-      best = distance;
+    const distance = Math.hypot(playerState.x - interaction.x, playerState.z - interaction.z);
+    // Collectibles and quest items win ties over scenery.
+    const weighted = interaction.kind === 'secret' ? distance + 0.4 : distance;
+    if (distance <= interaction.radius && weighted < best) {
+      best = weighted;
       nearest = interaction;
     }
   }
@@ -183,29 +198,12 @@ export const handleInteraction = (id: string): void => {
   if (!interaction || !isInteractionAvailable(interaction)) return;
   const state = useGameStore.getState();
 
-  if (interaction.id === 'hidden-message') {
-    state.discoverSecretGarden();
-    state.notify('A hidden message appears: "Your curiosity awakens the island."', 'quest');
-    audio.play('discovery');
-    return;
-  }
-  if (interaction.id === 'moonstone') {
-    state.notify('The moon stone glows warmly. You feel a mystical connection.', 'magic');
-    audio.play('collect');
-    return;
-  }
-  if (interaction.id === 'whispering-willow') {
-    state.notify('The willow whispers: "Secrets lie where the moonlight touches the water."', 'magic');
-    audio.play('discovery');
-    return;
-  }
-
   switch (interaction.kind) {
     case 'collectible':
       state.collect(interaction.id);
       break;
     case 'sign':
-      state.openModal('sign');
+      state.readSign();
       break;
     case 'door':
       state.enterCottage();
@@ -214,21 +212,25 @@ export const handleInteraction = (id: string): void => {
       state.exitCottage();
       break;
     case 'gate':
-      state.openGate();
+      state.tryGate();
       break;
     case 'note':
       state.openSecretNote();
       break;
+    case 'fountain':
+      state.offerFlowers();
+      break;
     case 'shrine':
       state.unlockShrine();
       break;
-    case 'mailbox':
-      state.notify(GAME_INFO.mailboxMessage, 'magic');
-      audio.play('discovery');
+    case 'key':
+      state.takeKey();
       break;
     case 'dresser':
       state.openModal('character');
-      audio.play('ui');
+      break;
+    case 'secret':
+      if (interaction.secretId) state.findSecret(interaction.secretId);
       break;
   }
 };

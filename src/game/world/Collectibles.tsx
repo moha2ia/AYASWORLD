@@ -215,7 +215,7 @@ const PickupBurst = () => {
       if (points.current) points.current.visible = true;
       if (material.current) material.current.color.set(pickup.color);
     }
-    if (startTime.current === null || !points.current) return;
+    if (startTime.current === null || !points.current || !points.current.visible) return;
     const elapsed = clock.elapsedTime - startTime.current;
     const baseY = terrainHeight(pickup.x, pickup.z) + 0.9;
     const attribute = points.current.geometry.attributes.position as THREE.BufferAttribute;

@@ -3,12 +3,14 @@ import { Beach } from './Beach';
 import { Butterflies } from './Butterflies';
 import { Collectibles } from './Collectibles';
 import { Cottage } from './Cottage';
+import { Critters } from './Critters';
 import { FlowerGarden } from './Garden';
 import { Meadow } from './Meadow';
 import { Ocean } from './Ocean';
 import { StonePaths } from './Paths';
 import { Lanterns, Pond, Rocks, SmallBridge } from './Props';
 import { SecretGarden } from './SecretGarden';
+import { IslandSecrets } from './Secrets';
 import { StarShrine } from './Shrine';
 import { Terrain } from './Terrain';
 import { Vegetation } from './Vegetation';
@@ -28,9 +30,11 @@ export const Island = () => (
     <SmallBridge />
     <Beach />
     <SecretGarden />
+    <IslandSecrets />
     <StarShrine />
     <Lanterns />
     <Butterflies />
+    <Critters />
     <Collectibles />
   </group>
 );

@@ -1,4 +1,10 @@
 import { GAME_INFO } from '../config/gameConfig';
+import {
+  completionPercent,
+  formatPlayTime,
+  TOTAL_COLLECTIBLES,
+  TOTAL_SECRETS,
+} from '../game/quests';
 import { useGameStore } from '../game/store';
 import { HeartIcon, SparkleIcon, StarIcon } from './Icons';
 import { Modal } from './Modal';
@@ -7,6 +13,12 @@ export const StoryModals = () => {
   const modal = useGameStore((state) => state.modal);
   const closeModal = useGameStore((state) => state.closeModal);
   const returnToTitle = useGameStore((state) => state.returnToTitle);
+  const collected = useGameStore((state) => state.collected);
+  const quests = useGameStore((state) => state.quests);
+  const gateOpen = useGameStore((state) => state.gateOpen);
+  const shrineUnlocked = useGameStore((state) => state.shrineUnlocked);
+  const secrets = useGameStore((state) => state.secrets);
+  const playSeconds = useGameStore((state) => state.playSeconds);
 
   if (modal === 'sign') {
     return (
@@ -27,8 +39,8 @@ export const StoryModals = () => {
           <span>✿</span>
         </div>
         <p className="story-small">
-          Five golden stars will wake the shrine on the northern hill. Everything else
-          is yours to discover.
+          Start at the cottage on the western path — someone left something there for
+          you. The quest card and the pink marker will always show the way.
         </p>
       </Modal>
     );
@@ -38,7 +50,7 @@ export const StoryModals = () => {
     return (
       <Modal
         kicker="found in the secret garden"
-        title="A note for AYA"
+        title="A note for Hossna"
         onClose={closeModal}
         footer={
           <button className="button button--primary button--wide" onClick={closeModal}>
@@ -56,6 +68,9 @@ export const StoryModals = () => {
   }
 
   if (modal === 'finale') {
+    const percent = completionPercent({ collected, quests, gateOpen, shrineUnlocked, secrets });
+    const secretsFound = Object.keys(secrets).length;
+    const itemsFound = Object.keys(collected).length;
     return (
       <Modal
         kicker="the island remembers"
@@ -93,9 +108,32 @@ export const StoryModals = () => {
         </div>
         <p className="story-letter story-letter--large">{GAME_INFO.finaleBody}</p>
         <blockquote className="finale-quote">{GAME_INFO.secretNote}</blockquote>
+        <div className="finale-stats">
+          <div>
+            <strong>{percent}%</strong>
+            <span>complete</span>
+          </div>
+          <div>
+            <strong>
+              {secretsFound}/{TOTAL_SECRETS}
+            </strong>
+            <span>secrets</span>
+          </div>
+          <div>
+            <strong>
+              {itemsFound}/{TOTAL_COLLECTIBLES}
+            </strong>
+            <span>treasures</span>
+          </div>
+          <div>
+            <strong>{formatPlayTime(playSeconds)}</strong>
+            <span>play time</span>
+          </div>
+        </div>
         <p className="story-small">
-          You found all five little pieces of magic. The island will keep its stars
-          glowing for whenever you want to come back.
+          {secretsFound < TOTAL_SECRETS || itemsFound < TOTAL_COLLECTIBLES
+            ? 'A few treasures and secrets are still hiding. Your journal (J) keeps the hints.'
+            : 'You found every last piece of magic. The island will keep its stars glowing for you.'}
         </p>
       </Modal>
     );

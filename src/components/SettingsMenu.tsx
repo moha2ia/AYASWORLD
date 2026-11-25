@@ -71,6 +71,13 @@ export const SettingsMenu = () => {
           onChange={(reducedMotion) => updateSettings({ reducedMotion })}
         />
 
+        <Toggle
+          label="Quest guide"
+          description="A floating pink marker and compass that point to your next goal."
+          checked={settings.guide}
+          onChange={(guide) => updateSettings({ guide })}
+        />
+
         <div className="setting-row setting-row--stacked">
           <div>
             <p className="setting-label">Visual quality</p>

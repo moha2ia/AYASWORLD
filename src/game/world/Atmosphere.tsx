@@ -126,9 +126,10 @@ const CloudInstances = ({ reducedMotion }: { reducedMotion: boolean }) => {
     instance.instanceMatrix.needsUpdate = true;
   }, [puffs]);
 
+  const frameDummy = useMemo(() => new THREE.Object3D(), []);
   useFrame(({ clock }) => {
     if (reducedMotion || !mesh.current) return;
-    const dummy = new THREE.Object3D();
+    const dummy = frameDummy;
     const time = clock.elapsedTime;
     puffs.forEach((puff, index) => {
       let x = puff.baseX + time * puff.drift;

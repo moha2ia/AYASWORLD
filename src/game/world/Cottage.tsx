@@ -139,7 +139,7 @@ const Mailbox = ({ position }: { position: [number, number, number] }) => {
 export const Cottage = () => {
   const quality = useQuality();
   const baseY = terrainHeight(LAYOUT.cottage.x, LAYOUT.cottage.z);
-  const plaqueTexture = useGeneratedTexture(() => makePlaqueTexture('AYA'));
+  const plaqueTexture = useGeneratedTexture(() => makePlaqueTexture('HOSSNA'));
   const gableGeometry = useMemo(() => {
     const shape = new THREE.Shape();
     shape.moveTo(-4.2, 0);
@@ -254,7 +254,7 @@ export const Cottage = () => {
         </mesh>
       </group>
 
-      {/* AYA plaque */}
+      {/* name plaque */}
       <mesh position={[0, 3.4, 2.93]}>
         <planeGeometry args={[1.9, 0.7]} />
         <meshBasicMaterial map={plaqueTexture} transparent toneMapped={false} />

@@ -16,7 +16,7 @@ export const StartScreen = ({ ready }: { ready: boolean }) => {
   const hasProgress = stars > 0 || completed > 0;
 
   return (
-    <section className="start-screen" aria-label="Aya's Secret World start screen">
+    <section className="start-screen" aria-label="Hossna's Secret World start screen">
       <div className="start-vignette" aria-hidden="true" />
       <div className="start-petals" aria-hidden="true">
         {Array.from({ length: 12 }).map((_, index) => (
@@ -26,7 +26,7 @@ export const StartScreen = ({ ready }: { ready: boolean }) => {
 
       <header className="start-topbar">
         <p className="start-made">
-          <HeartIcon size={13} /> a tiny island, made for AYA
+          <HeartIcon size={13} /> a tiny island, made for HOSSNA
         </p>
         <div className="start-actions">
           <button
@@ -49,9 +49,40 @@ export const StartScreen = ({ ready }: { ready: boolean }) => {
       </header>
 
       <div className="start-main">
+        <div className="start-flutter" aria-hidden="true">
+          <svg className="flutter flutter--a" viewBox="0 0 40 34">
+            <g fill="#f4aec8">
+              <ellipse cx="11" cy="10" rx="10" ry="7" transform="rotate(-26 11 10)" />
+              <ellipse cx="29" cy="10" rx="10" ry="7" transform="rotate(26 29 10)" />
+            </g>
+            <g fill="#fbd3e2">
+              <ellipse cx="13" cy="22" rx="7" ry="8" transform="rotate(20 13 22)" />
+              <ellipse cx="27" cy="22" rx="7" ry="8" transform="rotate(-20 27 22)" />
+            </g>
+            <circle cx="9" cy="9" r="2.2" fill="#fff4f8" />
+            <circle cx="31" cy="9" r="2.2" fill="#fff4f8" />
+            <ellipse cx="20" cy="17" rx="1.5" ry="8.5" fill="#8a5a72" />
+            <path d="M20 9 C18 5 15 3 13 2 M20 9 C22 5 25 3 27 2" stroke="#8a5a72" strokeWidth="1" fill="none" strokeLinecap="round" />
+          </svg>
+          <svg className="flutter flutter--b" viewBox="0 0 40 34">
+            <g fill="#cfc0f0">
+              <ellipse cx="11" cy="10" rx="10" ry="7" transform="rotate(-26 11 10)" />
+              <ellipse cx="29" cy="10" rx="10" ry="7" transform="rotate(26 29 10)" />
+            </g>
+            <g fill="#ecdcff">
+              <ellipse cx="13" cy="22" rx="7" ry="8" transform="rotate(20 13 22)" />
+              <ellipse cx="27" cy="22" rx="7" ry="8" transform="rotate(-20 27 22)" />
+            </g>
+            <circle cx="9" cy="9" r="2.2" fill="#fbf7ff" />
+            <circle cx="31" cy="9" r="2.2" fill="#fbf7ff" />
+            <ellipse cx="20" cy="17" rx="1.5" ry="8.5" fill="#6d5a86" />
+            <path d="M20 9 C18 5 15 3 13 2 M20 9 C22 5 25 3 27 2" stroke="#6d5a86" strokeWidth="1" fill="none" strokeLinecap="round" />
+          </svg>
+        </div>
+
         <p className="start-kicker">A cozy little 3D adventure</p>
         <h1 className="game-title" aria-label={GAME_INFO.title}>
-          <span className="game-title__aya">AYA'S</span>
+          <span className="game-title__name">HOSSNA'S</span>
           <span className="game-title__secret">SECRET WORLD</span>
         </h1>
         <p className="game-subtitle">{GAME_INFO.subtitle}</p>

@@ -27,7 +27,7 @@ export class GameErrorBoundary extends Component<Props, State> {
             <p className="modal-kicker">a small hiccup</p>
             <h1>The island needs WebGL</h1>
             <p>
-              Aya's Secret World needs 3D graphics to open. Try a recent version of
+              Hossna's Secret World needs 3D graphics to open. Try a recent version of
               Chrome, Safari, Edge or Firefox, and make sure hardware acceleration is
               enabled in your browser settings.
             </p>

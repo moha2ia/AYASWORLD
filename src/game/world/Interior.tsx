@@ -1,7 +1,9 @@
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
-import { getGlowTexture, useGeneratedTexture } from './visuals';
+import { getGlowTexture, Glow, useGeneratedTexture } from './visuals';
+import { useGameStore } from '../store';
+import { INTERIOR } from './layout';
 
 const makeWindowTexture = () => {
   const canvas = document.createElement('canvas');
@@ -237,6 +239,40 @@ const WindowView = ({ side }: { side: -1 | 1 }) => {
           <meshLambertMaterial color={['#ffb7ca', '#ffe09b', '#d9c3fa'][index % 3]} />
         </mesh>
       ))}
+    </group>
+  );
+};
+
+const GardenKey = () => {
+  const taken = useGameStore((state) => state.quests.key);
+  const key = useRef<THREE.Group>(null);
+  useFrame(({ clock }) => {
+    if (!key.current) return;
+    key.current.position.y = 0.95 + Math.sin(clock.elapsedTime * 2) * 0.05;
+    key.current.rotation.y = clock.elapsedTime * 1.2;
+  });
+  if (taken) return null;
+  return (
+    <group position={[INTERIOR.key.x, 0, INTERIOR.key.z]}>
+      <group ref={key} position={[0, 0.95, 0]} rotation-z={Math.PI / 2}>
+        <mesh position={[0, 0.13, 0]}>
+          <torusGeometry args={[0.08, 0.025, 6, 14]} />
+          <meshStandardMaterial color="#ffd36e" emissive="#ffb43c" emissiveIntensity={0.7} metalness={0.5} roughness={0.3} />
+        </mesh>
+        <mesh position={[0, -0.06, 0]}>
+          <cylinderGeometry args={[0.022, 0.022, 0.3, 6]} />
+          <meshStandardMaterial color="#ffd36e" emissive="#ffb43c" emissiveIntensity={0.7} metalness={0.5} roughness={0.3} />
+        </mesh>
+        <mesh position={[0.04, -0.17, 0]}>
+          <boxGeometry args={[0.07, 0.035, 0.03]} />
+          <meshStandardMaterial color="#ffd36e" emissive="#ffb43c" emissiveIntensity={0.7} metalness={0.5} roughness={0.3} />
+        </mesh>
+        <mesh position={[0.04, -0.1, 0]}>
+          <boxGeometry args={[0.05, 0.03, 0.03]} />
+          <meshStandardMaterial color="#ffd36e" emissive="#ffb43c" emissiveIntensity={0.7} metalness={0.5} roughness={0.3} />
+        </mesh>
+        <Glow color="#ffd98f" scale={0.9} opacity={0.6} />
+      </group>
     </group>
   );
 };
@@ -554,6 +590,7 @@ export const Interior = () => {
       <SleepingCat />
       <HangingLantern />
       <Fire />
+      <GardenKey />
 
       {/* Painting above the sofa */}
       <group position={[-4.94, 2.15, 2.45]} rotation-y={Math.PI / 2}>

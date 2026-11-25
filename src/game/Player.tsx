@@ -18,8 +18,9 @@ import {
 } from './terrain';
 import type { ObstacleBox } from './world/layout';
 import {
+  angleDelta,
   COTTAGE_BOX,
-  GATE_BOX,
+  HEDGE,
   INTERIOR,
   OBSTACLE_CIRCLES,
 } from './world/layout';
@@ -72,6 +73,28 @@ const resolveCircles = (position: { x: number; z: number }) => {
   }
 };
 
+/** Keeps the player on whichever side of the garden hedge they came from. */
+const resolveHedge = (
+  position: { x: number; z: number },
+  previous: { x: number; z: number },
+  gateOpen: boolean,
+) => {
+  const dx = position.x - HEDGE.x;
+  const dz = position.z - HEDGE.z;
+  const distance = Math.hypot(dx, dz) || 0.0001;
+  const band = HEDGE.halfThickness + PLAYER_RADIUS;
+  if (Math.abs(distance - HEDGE.radius) >= band) return;
+  if (gateOpen) {
+    const along = Math.abs(angleDelta(Math.atan2(dz, dx), HEDGE.gateAngle)) * HEDGE.radius;
+    if (along < HEDGE.openingHalfWidth - PLAYER_RADIUS) return;
+  }
+  const wasInside =
+    Math.hypot(previous.x - HEDGE.x, previous.z - HEDGE.z) < HEDGE.radius;
+  const target = wasInside ? HEDGE.radius - band : HEDGE.radius + band;
+  position.x = HEDGE.x + (dx / distance) * target;
+  position.z = HEDGE.z + (dz / distance) * target;
+};
+
 // Pretty girl character with body shape, short skirt dress look
 export const Player = ({ mode }: { mode: 'island' | 'interior' }) => {
   const quality = useQuality();
@@ -119,8 +142,8 @@ export const Player = ({ mode }: { mode: 'island' | 'interior' }) => {
     playerState.grounded = true;
     playerState.scene = mode;
     if (mode === 'interior') {
-      cameraState.distance = 4.4;
-      cameraState.pitch = 0.3;
+      cameraState.distance = 4.9;
+      cameraState.pitch = 0.74;
       cameraState.yaw = 0;
     } else {
       cameraState.distance = ISLAND_DISTANCE;
@@ -212,7 +235,7 @@ export const Player = ({ mode }: { mode: 'island' | 'interior' }) => {
         }
         resolveCircles(next);
         resolveBox(next, COTTAGE_BOX);
-        if (!gateOpen) resolveBox(next, GATE_BOX);
+        resolveHedge(next, current, gateOpen);
         if (!isWalkable(next.x, next.z)) {
           next.x = previousX;
           next.z = previousZ;

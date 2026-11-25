@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
+import { AreaBanner } from './components/AreaBanner';
 import { CharacterPanel } from './components/CharacterPanel';
-import { DressRoom } from './components/DressRoom';
 import { GameErrorBoundary } from './components/ErrorBoundary';
-import { PhotoMode } from './components/PhotoMode';
+import { Journal } from './components/Journal';
 import { StoryModals } from './components/StoryModals';
 import { GameHUD } from './components/GameHUD';
 import { HowToPlay } from './components/HowToPlay';
@@ -52,8 +52,8 @@ export default function App() {
 
   useEffect(() => {
     if (!import.meta.env.DEV) return;
-    const testWindow = window as unknown as { __AYA_TEST__?: TestBridge };
-    testWindow.__AYA_TEST__ = {
+    const testWindow = window as unknown as { __HOSSNA_TEST__?: TestBridge };
+    testWindow.__HOSSNA_TEST__ = {
       getState: () => useGameStore.getState(),
       teleport: (x, z) => {
         teleportRequest.pending = { x, z };
@@ -63,7 +63,7 @@ export default function App() {
       interactNearby: interactWithNearby,
     };
     return () => {
-      delete testWindow.__AYA_TEST__;
+      delete testWindow.__HOSSNA_TEST__;
     };
   }, []);
 
@@ -78,6 +78,7 @@ export default function App() {
       <div className="scene-fade" key={scene} aria-hidden="true" />
 
       {!isTitle && <GameHUD />}
+      {!isTitle && <AreaBanner />}
       {!isTitle && <MobileControls />}
       {isTitle && <StartScreen ready={!showLoader} />}
       {phase === 'paused' && !modal && <PauseMenu />}
@@ -87,8 +88,7 @@ export default function App() {
       <HowToPlay />
       <CharacterPanel />
       <StoryModals />
-      <DressRoom />
-      <PhotoMode />
+      <Journal />
 
       {showLoader && <LoadingOverlay done={loaderDone} />}
     </div>

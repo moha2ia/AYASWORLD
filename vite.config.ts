@@ -13,5 +13,7 @@ export default defineConfig({
   build: {
     target: 'es2020',
     sourcemap: false,
+    // three.js alone is ~700 kB; one cached game bundle is intentional.
+    chunkSizeWarningLimit: 1600,
   },
 });

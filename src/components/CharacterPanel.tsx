@@ -115,8 +115,8 @@ export const CharacterPanel = () => {
           <div className="character-note">
             <span aria-hidden="true">✿</span>
             <p>
-              The same five outfits and five hair colours will greet you next time.
-              Choose whichever makes the island feel most like yours.
+              Your outfit and hair are saved, so they will greet you next time.
+              You can change them any time at the dresser inside the cottage.
             </p>
           </div>
         </div>

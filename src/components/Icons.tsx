@@ -25,6 +25,17 @@ export const StarIcon = ({ size = 20, className }: IconProps) => (
   </svg>
 );
 
+export const BookIcon = ({ size = 20, className }: IconProps) => (
+  <svg {...base(size)} className={className}>
+    <path
+      d="M4 5.5C4 4.67 4.67 4 5.5 4H11v15H5.5A1.5 1.5 0 0 1 4 17.5v-12zM20 5.5c0-.83-.67-1.5-1.5-1.5H13v15h5.5c.83 0 1.5-.67 1.5-1.5v-12z"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 export const CrystalIcon = ({ size = 20, className }: IconProps) => (
   <svg {...base(size)} className={className}>
     <path

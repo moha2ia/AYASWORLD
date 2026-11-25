@@ -1,5 +1,5 @@
 import { audio } from '../game/audio';
-import { QUESTS, starCount } from '../game/quests';
+import { completionPercent, QUESTS, starCount } from '../game/quests';
 import { useGameStore } from '../game/store';
 import {
   FlowerIcon,
@@ -21,11 +21,15 @@ export const PauseMenu = () => {
   const sound = useGameStore((state) => state.settings.sound);
   const collected = useGameStore((state) => state.collected);
   const quests = useGameStore((state) => state.quests);
+  const gateOpen = useGameStore((state) => state.gateOpen);
+  const shrineUnlocked = useGameStore((state) => state.shrineUnlocked);
+  const secrets = useGameStore((state) => state.secrets);
 
   if (phase !== 'paused' || modal) return null;
 
   const stars = starCount(collected);
   const completed = QUESTS.filter((quest) => quests[quest.id]).length;
+  const percent = completionPercent({ collected, quests, gateOpen, shrineUnlocked, secrets });
 
   return (
     <div className="pause-overlay">
@@ -36,7 +40,8 @@ export const PauseMenu = () => {
         <p className="modal-kicker">a quiet moment</p>
         <h2 id="pause-title" className="pause-title">The island will wait for you.</h2>
         <p className="pause-subtitle">
-          <StarIcon size={14} /> {stars} stars · {completed} / {QUESTS.length} quests found
+          <StarIcon size={14} /> {stars} stars · {completed} / {QUESTS.length} quests · {percent}%
+          complete
         </p>
 
         <button
@@ -50,6 +55,9 @@ export const PauseMenu = () => {
         </button>
 
         <div className="pause-grid">
+          <button className="button button--soft" onClick={() => openModal('journal')}>
+            <StarIcon size={16} /> Journal
+          </button>
           <button className="button button--soft" onClick={() => openModal('howto')}>
             How to play
           </button>

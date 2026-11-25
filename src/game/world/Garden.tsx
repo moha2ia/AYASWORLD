@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import { terrainHeight } from '../terrain';
+import { useGameStore } from '../store';
 import { useQuality } from '../useQuality';
 import { LAYOUT } from './layout';
 import { Glow } from './visuals';
@@ -13,9 +14,12 @@ const Fountain = () => {
   const ringA = useRef<THREE.Mesh>(null);
   const ringB = useRef<THREE.Mesh>(null);
   const jet = useRef<THREE.Group>(null);
+  const orb = useRef<THREE.Group>(null);
+  const blessed = useGameStore((state) => state.quests.flowers);
 
   useFrame(({ clock }) => {
     const time = clock.elapsedTime;
+    const jetHeight = blessed ? 1.7 : 1;
     [ringA.current, ringB.current].forEach((ring, index) => {
       if (!ring) return;
       const cycle = (time * 0.18 + index * 0.5) % 1;
@@ -26,8 +30,12 @@ const Fountain = () => {
     if (jet.current) {
       jet.current.rotation.y = time * 0.6;
       jet.current.children.forEach((child, index) => {
-        child.scale.y = 0.88 + Math.sin(time * 3 + index * 2) * 0.12;
+        child.scale.y = jetHeight * (0.88 + Math.sin(time * 3 + index * 2) * 0.12);
       });
+    }
+    if (orb.current) {
+      orb.current.rotation.y = time * 0.7;
+      orb.current.position.y = 2.6 + Math.sin(time * 1.6) * 0.12;
     }
   });
 
@@ -96,6 +104,28 @@ const Fountain = () => {
         <meshStandardMaterial color="#ffe3a0" emissive="#ffc96e" emissiveIntensity={0.9} />
       </mesh>
       <Glow color="#d5fff8" scale={1.6} opacity={0.35} />
+      {blessed && (
+        <group ref={orb} position={[0, 2.6, 0]}>
+          {Array.from({ length: 6 }).map((_, index) => {
+            const angle = (index / 6) * Math.PI * 2;
+            return (
+              <mesh
+                key={index}
+                position={[Math.cos(angle) * 0.22, 0, Math.sin(angle) * 0.22]}
+                scale={[1, 0.45, 1]}
+              >
+                <sphereGeometry args={[0.16, 7, 5]} />
+                <meshStandardMaterial
+                  color={index % 2 === 0 ? '#ffc0d6' : '#e3cdfa'}
+                  emissive={index % 2 === 0 ? '#ff8fb5' : '#b18bef'}
+                  emissiveIntensity={0.7}
+                />
+              </mesh>
+            );
+          })}
+          <Glow color="#ffd2e6" scale={4.2} opacity={0.5} />
+        </group>
+      )}
     </group>
   );
 };

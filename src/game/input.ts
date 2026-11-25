@@ -73,6 +73,12 @@ export const bindKeyboard = (): (() => void) => {
       return;
     }
 
+    if (event.code === 'KeyJ' && !event.repeat && state.phase !== 'title') {
+      if (state.modal === 'journal') state.closeModal();
+      else if (!state.modal) state.openModal('journal');
+      return;
+    }
+
     if (state.modal) return;
 
     if (event.code === 'KeyM') {

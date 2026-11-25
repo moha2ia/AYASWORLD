@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber';
 import { mulberry32, terrainHeight } from '../terrain';
 import { useGameStore } from '../store';
 import { useQuality } from '../useQuality';
-import { LAYOUT } from './layout';
+import { HEDGE, LAYOUT } from './layout';
 import { getGlowTexture, Glow, makeNoteTexture, useGeneratedTexture } from './visuals';
 
 const Gate = () => {
@@ -26,8 +26,9 @@ const Gate = () => {
     );
   });
 
+  // Local z runs along the hedge; local -x faces into the garden so the panel swings inward.
   return (
-    <group position={[x, y, z]}>
+    <group position={[x, y, z]} rotation-y={-HEDGE.gateAngle}>
       {[-1.9, 1.9].map((side) => (
         <group key={side} position={[0, 0, side]}>
           <mesh position={[0, 1.5, 0]} castShadow={quality.shadows}>
@@ -90,8 +91,7 @@ const Gate = () => {
 };
 
 const WishingTree = () => {
-  const x = -32.6;
-  const z = 22.6;
+  const { x, z } = LAYOUT.wishingTree;
   const y = terrainHeight(x, z);
   const canopies = useRef<THREE.Group>(null);
   useFrame(({ clock }) => {

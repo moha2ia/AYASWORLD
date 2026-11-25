@@ -1,63 +1,92 @@
-# Aya's Secret World
+# Hossna's Secret World
 
-A cozy 3D island adventure browser game built with React, Three.js, and Vite.
+A cozy little 3D island adventure built with React, Three.js, and Vite. Explore a hand-built island, collect starlight, finish small quests, and uncover its secrets.
 
-## Quick Start
+Everything in the world is generated in code — terrain, trees, flowers, sounds, and textures — so there are no external art assets to load.
+
+## Quick start
 
 ```bash
-# Install dependencies
 npm install
-
-# Start development server
 npm run dev
-
-# Open your browser at http://localhost:5174 (or the port shown in terminal)
 ```
 
-## Available Scripts
+Open the URL printed by Vite (usually http://localhost:5173).
+
+## Scripts
 
 | Script | Description |
 |--------|-------------|
-| `npm run dev` | Start the Vite development server with HMR |
-| `npm run build` | Build for production |
+| `npm run dev` | Start the Vite dev server with HMR |
+| `npm run typecheck` | Type-check the project without emitting files |
+| `npm run build` | Type-check and build for production into `dist/` |
 | `npm run preview` | Preview the production build locally |
 
-## Project Structure
+## Project structure
 
-- `src/` - Source code
-  - `game/` - Three.js scene, player, camera, world generation
-  - `ui/` - React UI components
-  - `components/` - Reusable UI elements
-  - `config/` - Game configuration and types
-  - `store/` - Zustand game state management
-- `vite.config.ts` - Vite configuration with Three.js
-- `package.json` - Dependencies and scripts
+```
+src/
+├── components/        HUD, modals, journal, title screen, mobile controls
+├── config/            Game text, collectibles, outfits, hair styles
+├── game/
+│   ├── store.ts       Zustand state, quests, badges, discovery banners, save/load
+│   ├── Player.tsx     Movement, jumping, third-person camera target
+│   ├── CameraRig.tsx  Orbit camera with obstacle avoidance
+│   ├── Scene.tsx      Canvas, lighting mode, performance scaling
+│   ├── terrain.ts     Analytic island height field shared by mesh + gameplay
+│   └── world/         Island sets, cottage interior, props, critters, atmosphere
+├── styles/            Global CSS (design tokens, HUD, modals, animations)
+└── ui/                Responsive helpers
+public/
+├── icons/             App icons (SVG + PNG)
+└── manifest.webmanifest
+```
 
-## Build
+## How to play
 
-The project uses TypeScript with `tsc -b` for incremental builds and `vite build` for production output. The built output goes to `dist/`.
+1. Press **PLAY** on the title screen.
+2. Follow the quest card and its compass arrow.
+3. Read the welcome sign, visit the cottage, then let the island guide you onward.
+4. Find all five shrine stars to wake the Star Shrine.
+5. Fill the journal with treasures, secrets, places, and badges.
 
-## How to Play
-
-1. Start the dev server with `npm run dev`
-2. Click "PLAY" on the title screen to begin
-3. Use WASD/joystick to move, Space to jump, E to interact
-4. Collect stars and crystals, discover secrets
-5. Find all 5 stars to unlock the Star Shrine
-6. Explore the cottage, beach, secret garden, and shrine
+Progress is saved to `localStorage` in the current browser only. It is not synced across devices.
 
 ## Controls
 
-**Keyboard:**
-- WASD or Arrow keys: Move
-- Shift: Run
-- Space: Jump
-- E: Interact
-- M: Toggle sound
-- R: Recenter camera
-- Esc: Pause/Exit menu
+**Keyboard**
 
-**Mobile:**
-- Left joystick: Move
-- Right buttons: Jump, Run, Interact
-- Top buttons: Sound, Map, Pause
+- `WASD` / arrow keys — move
+- `Shift` — run
+- `Space` — jump
+- `E` — interact
+- `J` — journal
+- `M` — mute / unmute
+- `R` — recenter camera
+- `Esc` — pause
+
+**Touch**
+
+- Left joystick — move
+- Right buttons — jump, run, action
+- Top bar — journal, sound, settings, pause
+
+## Deployment
+
+The build output is a fully static site in `dist/`. Any static host works.
+
+### Vercel
+
+`vercel.json` is included (Vite preset, SPA rewrite, and long-term caching for hashed assets). Import the repository and deploy — no environment variables are required.
+
+### Netlify / Cloudflare Pages / GitHub Pages
+
+- Build command: `npm run build`
+- Output directory: `dist`
+- If the host asks for a SPA fallback, rewrite all paths to `/index.html`.
+
+## Notes
+
+- Requires WebGL 2. The scene adapts resolution and particle counts on slower devices.
+- Sound is synthesized with the Web Audio API and starts after the first user interaction.
+- `prefers-reduced-motion` and the in-game motion setting both calm animations.

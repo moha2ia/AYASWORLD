@@ -3,23 +3,32 @@ import {
   DEFAULT_CHARACTER,
   HAIR_STYLES,
   OUTFITS,
+  SECRETS,
 } from '../config/gameConfig';
+import { BADGES } from './achievements';
 import type {
+  BadgeId,
   CharacterLook,
   CollectedMap,
   GameSettings,
   ProgressData,
   QuestId,
+  SecretId,
 } from './types';
 
-const STORAGE_KEY = 'ayas-secret-world:save:v1';
-const SAVE_VERSION = 1;
+const STORAGE_KEY = 'hossnas-secret-world:save:v2';
+export const SAVE_VERSION = 2;
 
 export const DEFAULT_QUESTS: Record<QuestId, boolean> = {
+  sign: false,
   meadow: false,
-  stars: false,
-  secret: false,
   cottage: false,
+  key: false,
+  secret: false,
+  note: false,
+  flowers: false,
+  crystals: false,
+  stars: false,
   shrine: false,
 };
 
@@ -28,6 +37,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   reducedMotion: false,
   quality: 'auto',
   sensitivity: 1,
+  guide: true,
 };
 
 export const defaultProgress = (): ProgressData => ({
@@ -35,16 +45,20 @@ export const defaultProgress = (): ProgressData => ({
   collected: {},
   quests: { ...DEFAULT_QUESTS },
   visited: {},
+  secrets: {},
+  badges: {},
   gateOpen: false,
   shrineUnlocked: false,
   character: { ...DEFAULT_CHARACTER },
   settings: { ...DEFAULT_SETTINGS },
-  discovered: {},
+  playSeconds: 0,
 });
 
 const knownCollectibleIds = new Set(COLLECTIBLES.map((item) => item.id));
-const outfitIds = new Set(OUTFITS.map((item) => item.id));
-const hairIds = new Set(HAIR_STYLES.map((item) => item.id));
+const knownSecretIds = new Set<string>(SECRETS.map((item) => item.id));
+const knownBadgeIds = new Set<string>(BADGES.map((badge) => badge.id));
+const outfitIds = new Set<string>(OUTFITS.map((item) => item.id));
+const hairIds = new Set<string>(HAIR_STYLES.map((item) => item.id));
 
 const validObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -52,12 +66,14 @@ const validObject = (value: unknown): value is Record<string, unknown> =>
 const sanitizeCharacter = (value: unknown): CharacterLook => {
   if (!validObject(value)) return { ...DEFAULT_CHARACTER };
   return {
-    outfit: outfitIds.has(value.outfit as never)
-      ? (value.outfit as CharacterLook['outfit'])
-      : DEFAULT_CHARACTER.outfit,
-    hair: hairIds.has(value.hair as never)
-      ? (value.hair as CharacterLook['hair'])
-      : DEFAULT_CHARACTER.hair,
+    outfit:
+      typeof value.outfit === 'string' && outfitIds.has(value.outfit)
+        ? (value.outfit as CharacterLook['outfit'])
+        : DEFAULT_CHARACTER.outfit,
+    hair:
+      typeof value.hair === 'string' && hairIds.has(value.hair)
+        ? (value.hair as CharacterLook['hair'])
+        : DEFAULT_CHARACTER.hair,
   };
 };
 
@@ -76,7 +92,17 @@ const sanitizeSettings = (value: unknown): GameSettings => {
     reducedMotion: typeof value.reducedMotion === 'boolean' ? value.reducedMotion : false,
     quality,
     sensitivity,
+    guide: typeof value.guide === 'boolean' ? value.guide : true,
   };
+};
+
+const trueFlags = (value: unknown, accept: (id: string) => boolean) => {
+  const result: Record<string, true> = {};
+  if (!validObject(value)) return result;
+  for (const [id, flag] of Object.entries(value)) {
+    if (flag === true && accept(id)) result[id] = true;
+  }
+  return result;
 };
 
 /**
@@ -92,12 +118,7 @@ export const loadProgress = (): ProgressData => {
       return defaultProgress();
     }
 
-    const collected: CollectedMap = {};
-    if (validObject(parsed.collected)) {
-      for (const [id, value] of Object.entries(parsed.collected)) {
-        if (value === true && knownCollectibleIds.has(id)) collected[id] = true;
-      }
-    }
+    const collected: CollectedMap = trueFlags(parsed.collected, (id) => knownCollectibleIds.has(id));
 
     const quests = { ...DEFAULT_QUESTS };
     if (validObject(parsed.quests)) {
@@ -106,30 +127,27 @@ export const loadProgress = (): ProgressData => {
       }
     }
 
-    const visited: Record<string, boolean> = {};
-    if (validObject(parsed.visited)) {
-      for (const [id, value] of Object.entries(parsed.visited)) {
-        if (value === true && id.length < 40) visited[id] = true;
-      }
-    }
-
-    const discovered: Record<string, boolean> = {};
-    if (validObject(parsed.discovered)) {
-      for (const [id, value] of Object.entries(parsed.discovered)) {
-        if (value === true && id.length < 40) discovered[id] = true;
-      }
-    }
+    const playSeconds =
+      typeof parsed.playSeconds === 'number' && Number.isFinite(parsed.playSeconds)
+        ? Math.max(0, parsed.playSeconds)
+        : 0;
 
     return {
       version: SAVE_VERSION,
       collected,
       quests,
-      visited,
+      visited: trueFlags(parsed.visited, (id) => id.length < 40),
+      secrets: trueFlags(parsed.secrets, (id) => knownSecretIds.has(id)) as Partial<
+        Record<SecretId, true>
+      >,
+      badges: trueFlags(parsed.badges, (id) => knownBadgeIds.has(id)) as Partial<
+        Record<BadgeId, true>
+      >,
       gateOpen: parsed.gateOpen === true,
       shrineUnlocked: parsed.shrineUnlocked === true,
       character: sanitizeCharacter(parsed.character),
       settings: sanitizeSettings(parsed.settings),
-      discovered,
+      playSeconds,
     };
   } catch {
     return defaultProgress();
